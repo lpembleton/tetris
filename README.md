@@ -2,11 +2,10 @@
 [![run with docker](https://img.shields.io/badge/run%20with-docker-0db7ed?labelColor=000000&logo=docker)](https://www.docker.com/)
 
 # tetris
-<img align="right" src="docs/images/tetris.png" height="100">
-
-## Introduction
 
 **tetris** is a nextflow pipeline for processing short read DNA sequencing data and calling variants.
+
+<img align="right" src="docs/images/tetris.png" height="100">
 
 It trims reads with ([`fastp`](https://github.com/OpenGene/fastp)), aligns with ([`BWA-MEM`](https://bio-bwa.sourceforge.net/)), marks duplicates (optional) with ([`GATK MarkDuplicates`](https://gatk.broadinstitute.org/hc/en-us/articles/21905036102043-MarkDuplicates-Picard)), and calls variants with ([`BCFTOOLS`](https://www.htslib.org/)). Additionally QC stats are computed with ([`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/)), ([`Samtools`](https://www.htslib.org/)) and ([`mosdepth`](https://github.com/brentp/mosdepth)) which is aggregated into a report by ([`MultiQC`](http://multiqc.info/))
 
