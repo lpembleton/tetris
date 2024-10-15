@@ -2,7 +2,7 @@ process SAMTOOLS_INDEX {
     tag "$meta.id"
     label 'process_low'
 
-    if( params.skip_markdup == 'true' ) {
+    if( params.skip_markdup == true ) {
         publishDir "$params.outdir/mapping", pattern: '*.bai', mode: 'copy'
     }
 

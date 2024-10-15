@@ -2,7 +2,7 @@ process SAMTOOLS_MERGE {
     tag "$meta.id"
     label 'process_low'
 
-    if( params.skip_markdup == 'true' ) {
+    if( params.skip_markdup == true ) {
         publishDir "$params.outdir/mapping", pattern: '*.merged.bam', mode: 'copy'
     }   
 

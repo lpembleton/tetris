@@ -2,7 +2,7 @@ process BWA_MEM {
     tag "mapping $meta.id"
     label 'process_medium_multi'
 
-    if( params.split_fastq == 0 && params.skip_markdup == 'true') {
+    if( params.split_fastq == 0 && params.skip_markdup == true) {
         publishDir "$params.outdir/mapping", pattern: '*.bam', mode: 'copy'
     }    
 
