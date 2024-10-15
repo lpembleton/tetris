@@ -18,9 +18,6 @@ process FASTP {
     
     if (meta.seq_type == "single") {
         """
-		gunzip *fastq.gz
-		gzip *fastq
-
         fastp \\
             --in1 ${reads} \
             --out1 ${prefix}_1.fastp.fastq.gz \\
@@ -37,9 +34,6 @@ process FASTP {
         """
     } else {
         """
-		gunzip *fastq.gz
-		gzip *fastq
-		
         fastp \\
             --in1 ${reads[0]} \
             --in2 ${reads[1]} \
