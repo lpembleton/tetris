@@ -95,22 +95,27 @@ workflow TETRIS {
 
     // ==== P R E P R O C E S S I N G   S T E P S ====
 
-    //TODO: add in option to skip fastp
-    FASTP(input_sample)
-    // Gather used softwares versions and reports
-    versions = versions.mix(FASTP.out.versions)
-    reports = reports.mix(FASTP.out.json.collect{ meta, json -> json })
-    reports = reports.mix(FASTP.out.html.collect{ meta, html -> html })
-    
+	if (params.skip_fastp) {
+		//skip fastp
+		post_fp_reads = input_sample
+	} else {
+		FASTP(input_sample)
+		post_fp_reads = FASTP.out.reads
+		// Gather used softwares versions and reports
+		versions = versions.mix(FASTP.out.versions)
+		reports = reports.mix(FASTP.out.json.collect{ meta, json -> json })
+		reports = reports.mix(FASTP.out.html.collect{ meta, html -> html })
+	}
+
 
     // TODO: code this to also work with single read data
     if (params.split_fastq) {
-            reads_for_alignment = FASTP.out.reads.map{ meta, reads ->
+            reads_for_alignment = post_fp_reads.map{ meta, reads ->
                 read_files = reads.sort(false) { a,b -> a.getName().tokenize('.')[0] <=> b.getName().tokenize('.')[0] }.collate(2)
                 [ meta + [ size:read_files.size() ], read_files ]
             }.transpose()
     } else {
-        reads_for_alignment = FASTP.out.reads
+        reads_for_alignment = post_fp_reads
     }
     //reads_for_alignment.view()
 
