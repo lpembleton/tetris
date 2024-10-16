@@ -17,6 +17,8 @@ params.skip_fastp = false // T/F skip fastp processing [currently skipping is no
 params.skip_markdup = false // T/F skip duplicate read marking
 params.markdup_tool = 'gatk' // use GATK markduplicates tool for duplicate read marking, samtools option to be added
 params.grouped_call = false // T/F run mpileup and call on all bams together
+params.mapping_only = false // T/F whether to only perform read mapping and no variant calling
+params.regions = 'not_provided'
 
 //params.variants_only = false // see config for the interation with this flag
 
@@ -38,6 +40,7 @@ log.info """\
     split fastq (0 to skip): ${params.split_fastq}
     skip markduplicates: ${params.skip_markdup}
     markduplicate tool: ${params.markdup_tool}
+	perform only mapping: ${params.mapping_only}
     call variants only: ${params.variants_only}
     grouped call: ${params.grouped_call}
     constrain alleles: ${params.constrain_alleles}
@@ -181,38 +184,49 @@ workflow TETRIS {
 
 
 
-    // ==== V A R I A N T   C A L L I N G ====
+    
+	if (params.mapping_only) { 
+		
+		// Only perform read mapping no variant calling
+
+	} else {
+
+		// ==== V A R I A N T   C A L L I N G ====
+
+		if (params.grouped_call) { // perform variant calling on all samples together (e.g. variant discovery, mapping families)
+
+			//BCFTOOLS_GRP_CALL(BWA_MEM.out.bam.map { tuple -> tuple[1] }.collect(), BWA_MEM.out.bai.map { tuple -> tuple[1] }.collect(), params.reference, SAMTOOLS_FAIDX.out.fai, params.regions)
+			BCFTOOLS_GRP_CALL(indexed_bams_ch.map { tuple -> tuple[1] }.collect(), indexed_bams_ch.map { tuple -> tuple[2] }.collect(), params.reference, SAMTOOLS_FAIDX.out.fai, params.regions)
+			// Gather used softwares versions and reports
+			versions = versions.mix(BCFTOOLS_GRP_CALL.out.versions)  
+
+		} else { // perform variant calling seperately for each sample (e.g. genotyping pipeline)
+
+			// Groups multi bam from the same sample 'name' to run mpileup on
+			//BCFTOOLS_MPILEUP(BWA_MEM.out.bam.map{ meta, bam -> [ meta.subMap('name'), bam ] }.groupTuple(), BWA_MEM.out.bai.map{ meta, bai -> [ meta.subMap('name'), bai ] }.groupTuple(), params.reference, SAMTOOLS_FAIDX.out.fai, params.regions)
+			BCFTOOLS_MPILEUP(indexed_bams_ch.map{ meta, bam, bai -> [ meta.subMap('name'), bam, bai ] }.groupTuple(), params.reference, SAMTOOLS_FAIDX.out.fai, params.regions)
+			// Gather used softwares versions and reports
+			versions = versions.mix(BCFTOOLS_MPILEUP.out.versions)  
+
+			if(params.constrain_alleles) { // constrain genotype calls to those alleles provided an indexed als.tsv type file
+
+				BCFTOOLS_CALL_SNPS(BCFTOOLS_MPILEUP.out.bcf, BCFTOOLS_MPILEUP.out.csi, params.regions, params.targets_index)
+				// Gather used softwares versions and reports
+				versions = versions.mix(BCFTOOLS_CALL_SNPS.out.versions) 
+
+			} else{
+
+				BCFTOOLS_CALL(BCFTOOLS_MPILEUP.out.bcf, BCFTOOLS_MPILEUP.out.csi, params.regions)
+				// Gather used softwares versions and reports
+				versions = versions.mix(BCFTOOLS_CALL.out.versions) 
+
+			}
+
+		}
+
+	}
  
-    if (params.grouped_call) { // perform variant calling on all samples together (e.g. variant discovery, mapping families)
-
-        //BCFTOOLS_GRP_CALL(BWA_MEM.out.bam.map { tuple -> tuple[1] }.collect(), BWA_MEM.out.bai.map { tuple -> tuple[1] }.collect(), params.reference, SAMTOOLS_FAIDX.out.fai, params.regions)
-        BCFTOOLS_GRP_CALL(indexed_bams_ch.map { tuple -> tuple[1] }.collect(), indexed_bams_ch.map { tuple -> tuple[2] }.collect(), params.reference, SAMTOOLS_FAIDX.out.fai, params.regions)
-        // Gather used softwares versions and reports
-        versions = versions.mix(BCFTOOLS_GRP_CALL.out.versions)  
-
-    } else { // perform variant calling seperately for each sample (e.g. genotyping pipeline)
-
-        // Groups multi bam from the same sample 'name' to run mpileup on
-        //BCFTOOLS_MPILEUP(BWA_MEM.out.bam.map{ meta, bam -> [ meta.subMap('name'), bam ] }.groupTuple(), BWA_MEM.out.bai.map{ meta, bai -> [ meta.subMap('name'), bai ] }.groupTuple(), params.reference, SAMTOOLS_FAIDX.out.fai, params.regions)
-        BCFTOOLS_MPILEUP(indexed_bams_ch.map{ meta, bam, bai -> [ meta.subMap('name'), bam, bai ] }.groupTuple(), params.reference, SAMTOOLS_FAIDX.out.fai, params.regions)
-        // Gather used softwares versions and reports
-        versions = versions.mix(BCFTOOLS_MPILEUP.out.versions)  
-
-        if(params.constrain_alleles) { // constrain genotype calls to those alleles provided an indexed als.tsv type file
-
-            BCFTOOLS_CALL_SNPS(BCFTOOLS_MPILEUP.out.bcf, BCFTOOLS_MPILEUP.out.csi, params.regions, params.targets_index)
-            // Gather used softwares versions and reports
-            versions = versions.mix(BCFTOOLS_CALL_SNPS.out.versions) 
-
-        } else{
-
-            BCFTOOLS_CALL(BCFTOOLS_MPILEUP.out.bcf, BCFTOOLS_MPILEUP.out.csi, params.regions)
-            // Gather used softwares versions and reports
-            versions = versions.mix(BCFTOOLS_CALL.out.versions) 
-
-        }
-
-    }
+    
 
     // ==== R E P O R T I N G ====
 
