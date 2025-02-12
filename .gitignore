@@ -1,0 +1,7 @@
+.nextflow
+.nextflow.log*
+data/
+.temp/
+example_run_commands.sh
+conf/awsbatch.config
+docs/example_data/
