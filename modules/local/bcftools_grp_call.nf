@@ -9,7 +9,7 @@ process BCFTOOLS_GRP_CALL {
     path(bai)
     path fasta
     path fai
-    path region
+    tuple val(region), path(bed)
 
     output:
     path("*.vcf.gz") , emit: vcf
@@ -24,16 +24,16 @@ process BCFTOOLS_GRP_CALL {
         --output-type u \\
         --fasta-ref ${fasta} \\
         --max-depth 40000 \\
-        --regions-file ${region} \\
+        --regions-file ${bed} \\
         --annotate AD,DP \\
         ${bam} | bcftools call \\
             $args \\
             --multiallelic-caller \\
             --output-type z \\
-            --targets-file ${region} \\
+            --targets-file ${bed} \\
             --group-samples - \\
             --skip-variants indels \\
-            --output ${prefix}.vcf.gz
+            --output ${prefix}_${region}.vcf.gz
 
 
     cat <<-END_VERSIONS > versions.yml
