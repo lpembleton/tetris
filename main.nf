@@ -113,7 +113,7 @@ workflow {
 			}
 			.set { input_bams }
 
-		VARIANT_CALLING(input_bams, params.reference, params.region, params.grouped_call, params.target_index)
+		VARIANT_CALLING(input_bams, params.reference, params.regions, params.grouped_call, params.target_index)
 		//versions = versions.mix(VARIANT_CALLING.out.versions)
 		reports = reports.mix(VARIANT_CALLING.out.reports)
 

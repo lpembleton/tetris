@@ -1,0 +1,95 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com///nextflow_schema.json",
+  "title": " pipeline parameters",
+  "description": "",
+  "type": "object",
+  "$defs": {
+    "input_output_options": {
+      "title": "Input/output options",
+      "type": "object",
+      "fa_icon": "fas fa-terminal",
+      "description": "Define where the pipeline should find input data and save output data.",
+      "properties": {
+        "input": {
+          "type": "string",
+          "description": "Input samplesheet",
+          "fa_icon": "fas fa-file-csv"
+        },
+        "outdir": {
+          "type": "string",
+          "format": "directory-path",
+          "description": "The output directory where the results will be saved. You have to use absolute paths to storage on Cloud infrastructure.",
+          "fa_icon": "fas fa-folder-open",
+          "default": "results/"
+        },
+        "outPrefix": {
+          "type": "string",
+          "default": "tetris",
+          "description": "prefix attached to output files like vcfs",
+          "fa_icon": "fas fa-font"
+        },
+        "reference": {
+          "type": "string",
+          "description": "reference genome fasta",
+          "fa_icon": "fas fa-dna"
+        }
+      },
+      "required": ["input", "outdir", "reference"]
+    }
+  },
+  "allOf": [
+    {
+      "$ref": "#/$defs/input_output_options"
+    }
+  ],
+  "properties": {
+    "split_fastq": {
+      "type": "string",
+      "default": "0",
+      "description": "number of reads to split fastq files by",
+      "fa_icon": "fas fa-cut"
+    },
+    "skip_fastp": {
+      "type": "boolean",
+      "description": "skip fastp processing",
+      "fa_icon": "fas fa-search"
+    },
+    "skip_markdup": {
+      "type": "boolean",
+      "description": "skip duplicate read marking",
+      "fa_icon": "fas fa-clone"
+    },
+    "markdup_tool": {
+      "type": "string",
+      "description": "tool for duplicate read marking",
+      "default": "gatk",
+      "fa_icon": "fas fa-hammer"
+    },
+    "grouped_call": {
+      "type": "boolean",
+      "description": "run mipleup and call on all bams together",
+      "fa_icon": "fas fa-layer-group"
+    },
+    "mapping_only": {
+      "type": "boolean",
+      "description": "run read mapping only no variant calling",
+      "fa_icon": "fas fa-align-justify"
+    },
+    "regions": {
+      "type": "string",
+      "description": "bed file of regions from the genome of focus variant calling on",
+      "fa_icon": "fas fa-map-marked-alt"
+    },
+    "targets_index": {
+      "type": "string",
+      "description": "indexed set of target positions and alleles",
+      "fa_icon": "fas fa-filter"
+    },
+    "constrain_alleles": {
+      "type": "boolean",
+      "description": "if true the indexed set of target position must also list alleles",
+      "fa_icon": "fas fa-filter"
+    }
+  }
+}
