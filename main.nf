@@ -28,6 +28,7 @@ params.skip_markdup = false // T/F skip duplicate read marking
 params.markdup_tool = 'gatk' // use GATK markduplicates tool for duplicate read marking, samtools option to be added
 params.grouped_call = false // T/F run mpileup and call on all bams together
 params.mapping_only = false // T/F whether to only perform read mapping and no variant calling
+params.calling_only = false // T/F whether to only perform read mapping and no variant calling
 params.regions = 'not_provided'
 
 //params.variants_only = false // see config for the interation with this flag

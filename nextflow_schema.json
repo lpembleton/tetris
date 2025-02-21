@@ -90,6 +90,11 @@
       "type": "boolean",
       "description": "if true the indexed set of target position must also list alleles",
       "fa_icon": "fas fa-filter"
+    },
+    "calling_only": {
+      "type": "boolean",
+      "fa_icon": "fas fa-braille",
+      "description": "run variant calling only"
     }
   }
 }
