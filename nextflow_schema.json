@@ -45,8 +45,8 @@
   ],
   "properties": {
     "split_fastq": {
-      "type": "string",
-      "default": "0",
+      "type": "number",
+      "default": 0,
       "description": "number of reads to split fastq files by",
       "fa_icon": "fas fa-cut"
     },
