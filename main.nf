@@ -109,6 +109,7 @@ workflow {
 			.fromPath(csv_file)
 			.splitCsv(header: true)
 			.map { row -> 
+                println "Row: ${row}"
 				def meta = [name: row.name]
 				tuple(meta, file(row.bam), file(row.bai))
 			}
